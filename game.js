@@ -19,64 +19,74 @@ class Vector {
 }
 
 class Actor {
-	constructor(pos = new Vector(0,0), size = new Vector(1,1), speed = new Vector(0,0)) {	
+	constructor(pos, size, speed) {	
 		if(pos === undefined || size === undefined || speed === undefined) {
 			if(pos === undefined){
 				this.pos = new Vector(0, 0);
 			} else if(pos instanceof Vector) {
-				this.pos = new Vector(pos.x, pos.y);
+				this.pos = pos;
 			} else {
 				throw new Error("Cвоство pos не являются объектами Vector");
 			}
 			if(size === undefined) {
 				this.size = new Vector(1, 1);
 			} else if(size instanceof Vector) {
-				this.size = new Vector(size.x, size.y);
+				this.size = size;
 			} else {
 				throw new Error("Cвоство size не являются объектами Vector");
 			}
 			if(speed === undefined) {
 				this.speed = new Vector(0, 0);
 			} else if(speed instanceof Vector) {
-				this.speed = new Vector(speed.x, speed.y);
+				this.speed = speed;
 			} else {
 				throw new Error("Cвоство speed не являются объектами Vector");
 			}			
 		} else if(pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
-			this.pos = new Vector(pos.x, pos.y);
-			this.size = new Vector(size.x, size.y);
-			this.speed = new Vector(speed.x, speed.y);
+			this.pos = pos;
+			this.size = size;
+			this.speed = size;
 		} else {
 			throw new Error("Cвоства не являются объектами Vector");
-		}	
-		Object.defineProperty(this, "left", { value: this.pos.x, configurable: false, writable: false, enumerable: true });
-		Object.defineProperty(this, "top", { value: this.pos.y, configurable: false, writable: false, enumerable: true });
-		Object.defineProperty(this, "right", { value: this.pos.x+this.size.x, configurable: false, writable: false, enumerable: true });
-		Object.defineProperty(this, "bottom", { value: this.pos.y+this.size.y, configurable: false, writable: false, enumerable: true });
-		Object.defineProperty(this, "type", { value: "actor", configurable: false, writable: false, enumerable: true });
+		}			
+	}
+	get left() {
+		return this.pos.x;
+	}
+	get top() {
+		return this.pos.y;
+	}
+	get right() {
+		return this.pos.x + this.size.x;
+	}
+	get bottom() {
+		return this.pos.y + this.size.y;
+	}
+	get type() {
+		return "actor";
 	}
 	act() {}
-	isIntersect(moving) {
-		if(moving.type === "actor" && moving !== undefined) {
-			if(moving === this){
+	isIntersect(actor) {
+		if(actor.type === "actor" && actor !== undefined) {
+			if(actor === this){
 				return false;
 			}
-			if(moving.top === this.top && moving.bottom === this.bottom) {
-				if(moving.left === this.left && moving.right === this.right) {
+			if(actor.top === this.top && actor.bottom === this.bottom) {
+				if(actor.left === this.left && actor.right === this.right) {
 					return true;
 				}
 			}	
-			if(moving.left > this.left) {
-				if(this.right > moving.right) {
-					if(moving.top > this.top) {
-						if(moving.bottom < this.bottom) {
+			if(actor.left > this.left) {
+				if(this.right > actor.right) {
+					if(actor.top > this.top) {
+						if(actor.bottom < this.bottom) {
 							return true;
 						}
 					}
 				}
 			}	
-			if(moving.left > this.right && this.left > moving.right || moving.right > this.left && this.right > moving.left) {
-				if(moving.top > this.bottom && this.top > moving.bottom || moving.bottom > this.top && this.bottom > moving.top) {
+			if(actor.left > this.right && this.left > actor.right || actor.right > this.left && this.right > actor.left) {
+				if(actor.top > this.bottom && this.top > actor.bottom || actor.bottom > this.top && this.bottom > actor.top) {
 					return true;
 				}
 			}							
@@ -86,22 +96,68 @@ class Actor {
 		}
 	}	
 }
-let p = new Vector(30,50);
-let s = new Vector(5,5);
-let sp = new Vector(10,2);
-let alfa = new Actor(p,s,sp);
-console.log(alfa);
-console.log(alfa.pos);
-console.log(p);
-console.log(alfa.pos == p);
-console.log(alfa.size);
-console.log(s);
-console.log(alfa.size == s);
-let p1 = new Vector(30,60);
-let s1 = new Vector(30,60);
-//console.log(alfa.left);
-//console.log(alfa.top);
-//console.log(alfa.right);
-//console.log(alfa.bottom);
+
+class Level {
+	constructor(grid, actors) {
+		this.grid = grid;
+		this.actors = actors;
+		this.status = null;
+		this.finishDelay = 1;		
+	}	
+	get player() {		
+		for(let actor of this.actors) {
+			if(actor.type === "player") {				
+				return actor;
+			}
+		}
+	}
+	get height() {	
+		if(this.grid === undefined) {
+			return 0;
+		} else {
+			return this.grid.length;
+		}
+	}
+	get width() {
+		if(this.grid === undefined){
+			return 0;
+		} else {
+			let result;
+			for(let i = 0; i < this.grid.length; i++) {
+				result = Math.max(this.grid[i].length);
+			}
+			return result;
+		}
+	}	
+	isFinished() {
+		if(this.status !== null) {
+			if(this.finishDelay < 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
+	actorAt(actor) {
+		if(!(actor instanceof Actor)) {
+			throw new Error("Объект не является типом Actor");
+		}
+		if(this.actors === undefined) return;
+		if(this.actors.length === 1) return;
+		let actors = this.actors;		
+		function number() {			
+			for(let i = 0; i < actors.length; i++) {						
+				if(actors[i] === actor){					
+					return i;
+				}
+				return;					
+			}
+		}				
+		return this.actors[number()];
+	}
+}
+
+
 
 
