@@ -139,6 +139,52 @@ class Level {
 		}
 		return false;
 	}
+	/*Вариант 1*/
+	/*actorAt(actor) {
+		if(!(actor instanceof Actor)) {
+			throw new Error("Объект не является типом Actor");
+		}
+		if(this.actors === undefined) return;
+		if(this.actors.length === 1) return;
+		let actors = this.actors;
+		for(let item of actors) {		
+			if(actor.top === item.top && actor.bottom === item.bottom) {
+				if(actor.left === item.left && actor.right === item.right) {					
+					return item;
+				}
+			}	
+			if(actor.left > item.left) {
+				if(item.right > actor.right) {
+					if(actor.top > item.top) {
+						if(actor.bottom < item.bottom) {
+							return item;
+						}
+					}
+				}
+			}	
+			if(actor.left > item.right && item.left > actor.right || actor.right > item.left && item.right > actor.left) {
+				if(actor.top > item.bottom && item.top > actor.bottom || actor.bottom > item.top && item.bottom > actor.top) {
+					return item;
+				}
+			}					
+		}
+		return;
+	}*/
+	/*Вариант 2*/
+	/*actorAt(actor) {
+		if(!(actor instanceof Actor)) {
+			throw new Error("Объект не является типом Actor");
+		}
+		if(this.actors === undefined) return;
+		if(this.actors.length === 1) return;
+		let actors = this.actors;
+		for(let item of actors) {
+			if(item === actor){
+				return item;
+			}						
+		}
+	}*/
+	/*Вариант 3*/
 	actorAt(actor) {
 		if(!(actor instanceof Actor)) {
 			throw new Error("Объект не является типом Actor");
@@ -157,7 +203,6 @@ class Level {
 		return this.actors[number()];
 	}
 }
-
 
 
 
