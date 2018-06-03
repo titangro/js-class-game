@@ -199,17 +199,18 @@ class Level {
 	playerTouched(type, actor) {
 		if(this.status !== null) {
 
-		} else {			
+		} else {						
 			if(type === 'lava' || type === 'fireball') {
 				this.status = 'lost';
-			}			
-			if(type === 'coin' && actor !== undefined) {
-				this.removeActor(actor);				
-				if(this.noMoreActors('coin')){
-					this.status = 'won';
+			} else if (actor instanceof Actor) {
+				if(type === 'coin') {					
+					this.removeActor(actor);
+					console.log(this.actors);
+					if(this.noMoreActors('coin')){
+						this.status = 'won';
+					}
 				}
 			}
-			
 		}
 	}
 }
