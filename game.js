@@ -26,21 +26,21 @@ class Actor {
 			} else if (pos instanceof Vector) {
 				this.pos = pos;
 			} else {
-				throw new Error('Cвоство pos не являются объектами Vector');
+				throw new Error('Cвоство pos не является объектами Vector');
 			}
 			if (size === undefined) {
 				this.size = new Vector(1, 1);
 			} else if (size instanceof Vector) {
 				this.size = size;
 			} else {
-				throw new Error('Cвоство size не являются объектами Vector');
+				throw new Error('Cвоство size не является объектами Vector');
 			}
 			if(speed === undefined) {
 				this.speed = new Vector(0, 0);
 			} else if (speed instanceof Vector) {
 				this.speed = speed;
 			} else {
-				throw new Error('Cвоство speed не являются объектами Vector');
+				throw new Error('Cвоство speed не является объектами Vector');
 			}			
 		} else if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
 			this.pos = pos;
@@ -273,19 +273,29 @@ class LevelParser {
 	}
 }
 
-const plan = [
-  ' @ ',
-  'x!x'
-];
-
-const actorsDict = Object.create(null);
-actorsDict['@'] = Actor;
-
-const parser = new LevelParser(actorsDict);
-const level = parser.parse(plan);
-
-level.grid.forEach((line, y) => {
-  line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
-});
-
-level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+class Fireball extends Actor {
+	constructor(pos = new Vector(0, 0), speed = new Vector(0, 0)) {
+		super();		
+		this.pos = pos;
+		this.speed = speed;
+		this.size = new Vector(1, 1);
+	}		
+	get type() {
+		return 'fireball';
+	}		
+	getNextPosition(time = 1) {		
+ 		return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
+	}
+	handleObstacle() {
+		this.speed.x = -this.speed.x;
+		this.speed.y = -this.speed.y;
+	}
+	act(time, grid) {	
+		let newPosition = this.getNextPosition(time);					
+		if (grid.obstacleAt(newPosition, this.size)) {
+			this.handleObstacle();
+		} else {
+			this.pos = newPosition;
+		}
+	}
+}
