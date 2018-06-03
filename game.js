@@ -203,9 +203,8 @@ class Level {
 			if(type === 'lava' || type === 'fireball') {
 				this.status = 'lost';
 			}			
-			if(type === 'coin') {
-				this.removeActor(actor);
-				console.log(this.actors);
+			if(type === 'coin' && actor !== undefined) {
+				this.removeActor(actor);				
 				if(this.noMoreActors('coin')){
 					this.status = 'won';
 				}
@@ -215,43 +214,8 @@ class Level {
 	}
 }
 
-const grid = [
-  [undefined, undefined],
-  ['wall', 'wall']
-];
+class LevelParser {
+	actorFromSynbol() {
 
-function MyCoin(title) {
-  this.type = 'coin';
-  this.title = title;
+	}
 }
-MyCoin.prototype = Object.create(Actor);
-MyCoin.constructor = MyCoin;
-
-const goldCoin = new MyCoin('Золото');
-const bronzeCoin = new MyCoin('Бронза');
-const player = new Actor();
-const fireball = new Actor();
-
-const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
-
-level.playerTouched('coin', goldCoin);
-level.playerTouched('coin', bronzeCoin);
-
-if (level.noMoreActors('coin')) {
-  console.log('Все монеты собраны');
-  console.log(`Статус игры: ${level.status}`);
-}
-
-const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
-if (obstacle) {
-  console.log(`На пути препятствие: ${obstacle}`);
-}
-
-const otherActor = level.actorAt(player);
-if (otherActor === fireball) {
-  console.log('Пользователь столкнулся с шаровой молнией');
-}
-
-
-
-
