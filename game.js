@@ -138,71 +138,120 @@ class Level {
 			}
 		}
 		return false;
-	}
-	/*Вариант 1*/
-	/*actorAt(actor) {
-		if(!(actor instanceof Actor)) {
-			throw new Error("Объект не является типом Actor");
-		}
-		if(this.actors === undefined) return;
-		if(this.actors.length === 1) return;
-		let actors = this.actors;
-		for(let item of actors) {		
-			if(actor.top === item.top && actor.bottom === item.bottom) {
-				if(actor.left === item.left && actor.right === item.right) {					
-					return item;
-				}
-			}	
-			if(actor.left > item.left) {
-				if(item.right > actor.right) {
-					if(actor.top > item.top) {
-						if(actor.bottom < item.bottom) {
-							return item;
-						}
-					}
-				}
-			}	
-			if(actor.left > item.right && item.left > actor.right || actor.right > item.left && item.right > actor.left) {
-				if(actor.top > item.bottom && item.top > actor.bottom || actor.bottom > item.top && item.bottom > actor.top) {
-					return item;
-				}
-			}					
-		}
-		return;
-	}*/
-	/*Вариант 2*/
-	/*actorAt(actor) {
-		if(!(actor instanceof Actor)) {
-			throw new Error("Объект не является типом Actor");
-		}
-		if(this.actors === undefined) return;
-		if(this.actors.length === 1) return;
-		let actors = this.actors;
-		for(let item of actors) {
-			if(item === actor){
-				return item;
-			}						
-		}
-	}*/
-	/*Вариант 3*/
+	}	
 	actorAt(actor) {
 		if(!(actor instanceof Actor)) {
 			throw new Error("Объект не является типом Actor");
-		}
-		if(this.actors === undefined) return;
-		if(this.actors.length === 1) return;
-		let actors = this.actors;		
-		function number() {			
-			for(let i = 0; i < actors.length; i++) {						
-				if(actors[i] === actor){					
-					return i;
+		} else {
+			if(this.actors === undefined) {
+				return;
+			} else if(this.actors.length === 1) {
+				return;
+			} else {
+				let result;					
+				for(let item of this.actors) {
+					if(item instanceof Actor) {
+						if(item.pos.x === actor.pos.x) {
+							if(item.pos.y === actor.pos.y) {
+								result = item;							
+							}					
+						}	else return;		
+					}							
 				}
-				return;					
+				return result;
 			}
-		}				
-		return this.actors[number()];
+		}							
+	}
+	obstacleAt(pos, size) {
+		if(!(pos instanceof Vector) || !(pos instanceof Vector)) {
+			throw new Error("Объект(ы) не является типом Vector");
+		} else if(pos.x < 0) {
+			return 'wall';
+		} else if(pos.x + size.x > this.width)	{
+			return 'wall';
+		} else if(pos.y < 0) {
+			return 'wall';
+		} else if(pos.y + size.y > this.height) {
+			return 'lava';
+		}
+		for(let i = Math.round(pos.y); i <= size.y+pos.y; i++) {
+			for(let j = Math.round(pos.x); j <= size.x+pos.x; j++){
+				return this.grid[i][j];
+			}
+		}
+	}
+	removeActor(actor) {				
+		delete this.actors[this.actors.indexOf(actor)];		
+	}
+	noMoreActors(type) {
+		if(this.actors === undefined) {
+			return true;
+		}		
+		for(let item of this.actors) {
+			if(item instanceof Actor){
+				if(item.type === type){
+					return false;
+				}
+			}
+		}
+		return true;	
+	}
+	playerTouched(type, actor) {
+		if(this.status !== null) {
+
+		} else {			
+			if(type === 'lava' || type === 'fireball') {
+				this.status = 'lost';
+			}			
+			if(type === 'coin') {
+				this.removeActor(actor);
+				console.log(this.actors);
+				if(this.noMoreActors('coin')){
+					this.status = 'won';
+				}
+			}
+			
+		}
 	}
 }
+
+const grid = [
+  [undefined, undefined],
+  ['wall', 'wall']
+];
+
+function MyCoin(title) {
+  this.type = 'coin';
+  this.title = title;
+}
+MyCoin.prototype = Object.create(Actor);
+MyCoin.constructor = MyCoin;
+
+const goldCoin = new MyCoin('Золото');
+const bronzeCoin = new MyCoin('Бронза');
+const player = new Actor();
+const fireball = new Actor();
+
+const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
+
+level.playerTouched('coin', goldCoin);
+level.playerTouched('coin', bronzeCoin);
+
+if (level.noMoreActors('coin')) {
+  console.log('Все монеты собраны');
+  console.log(`Статус игры: ${level.status}`);
+}
+
+const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
+if (obstacle) {
+  console.log(`На пути препятствие: ${obstacle}`);
+}
+
+const otherActor = level.actorAt(player);
+if (otherActor === fireball) {
+  console.log('Пользователь столкнулся с шаровой молнией');
+}
+
 
 
 
