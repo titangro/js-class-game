@@ -98,7 +98,7 @@ class Actor {
 }
 
 class Level {
-	constructor(grid, actors) {
+	constructor(grid = [], actors) {
 		this.grid = grid;
 		this.actors = actors;
 		this.status = null;
@@ -112,22 +112,14 @@ class Level {
 		}
 	}
 	get height() {	
-		if (this.grid === undefined) {
-			return 0;
-		} else {
-			return this.grid.length;
-		}
+		return this.grid.length;
 	}
 	get width() {
-		if (this.grid === undefined) {
-			return 0;
-		} else {
-			let result;
-			for (let i = 0; i < this.grid.length; i++) {
-				result = Math.max(this.grid[i].length);
-			}
-			return result;
-		}
+		let result = 0
+		this.grid.forEach(function(item) {
+			result = Math.max(item.length);
+		});
+		return result;		
 	}	
 	isFinished() {
 		if (this.status !== null) {
@@ -173,7 +165,7 @@ class Level {
 			return 'wall';
 		} else if (pos.y + size.y > this.height) {
 			return 'lava';
-		}
+		}		
 		for (let i = Math.round(pos.y); i <= size.y+pos.y; i++) {
 			for (let j = Math.round(pos.x); j <= size.x+pos.x; j++){
 				return this.grid[i][j];
@@ -234,14 +226,25 @@ class LevelParser {
 		let grid = [];		
 		if (plan.length === 0) {			
 			return grid;
-		} else {			
-			for (let j = 0; j < plan.length; j++) {				
+		} else {
+			/*for (let j = 0; j < plan.length; j++) {				
 				let result = plan[j].split('');				
 				for (let i = 0; i < result.length; i++) {					
 					result[i] = this.obstacleFromSymbol(result[i]);
 				}				
 				grid.push(result);
-			}
+			}*/
+			let parser = this;
+			plan.map(function(item) {
+				try {
+					let result = item.split('');				
+					grid.push(result.map(function(item) {
+						return item = parser.obstacleFromSymbol(item);										
+					}));
+				} catch (err) {
+					grid.push();
+				}
+			});					
 			return grid;
 		}
 	}
@@ -249,21 +252,25 @@ class LevelParser {
 		let grid = [];		
 		if (plan.length === 0 || this.data === undefined) {			
 			return [];
-		} else {				
-			let item, actor, result;							
-			for (let i = 0; i < plan.length; i++) {
-				result = plan[i].split('');				
-				for (let j = 0; j < plan[i].length; j++) {					
-					item = this.actorFromSymbol(result[j]);
-					if (item === undefined || typeof item !== 'function' || !(new item() instanceof Actor)) {						
-						grid.push();
-						continue;
-					} else {
-						actor = new item(new Vector(j, i));																
-					}	
-					grid.push(actor);					
-				}								
-			}	
+		} else {
+			try {
+				let item, actor, result;							
+				for (let i = 0; i < plan.length; i++) {
+					result = plan[i].split('');				
+					for (let j = 0; j < plan[i].length; j++) {					
+						item = this.actorFromSymbol(result[j]);
+						if (item === undefined || typeof item !== 'function' || !(new item() instanceof Actor)) {						
+							grid.push();
+							continue;
+						} else {
+							actor = new item(new Vector(j, i));																
+						}	
+						grid.push(actor);					
+					}								
+				}
+			} catch(err) {
+				grid.push();
+			}
 			return grid;
 		}
 	}
@@ -381,3 +388,66 @@ class Player extends Actor {
 		return 'player';
 	}
 }
+
+const maps = [
+  [
+    '     v                   v                 ',
+    '                       v        xxxx      ',
+    '  o   x               v                   ',
+    '  x    x                                  ',
+    '         x                                ',
+    '             xxxx                         ',
+    '                                   o      ',
+    '                    !xxx xxxx   xxxxxxxx  ',
+    '                  xx            o         ',
+    '        o   !!!              xxxx         ',
+    '        xxxx   xx                         ',
+    '  @                                       ',
+    'xxxx   |                                   ',
+    '               = |                        ',
+    '                                          ',
+    '         xxxxxx!                          ',
+    '                        oo                ',
+    '                      xxxxx               ',
+    '                                          ',
+    '                                          ',
+    '                                          ',
+    '                                          '
+  ],
+  [
+    '      v      v         ',
+    '    v            v    o ',
+    '  v        x  x  x x  x ',
+    '        o = = =         ',
+    '        x    |  | |     ',
+    '@   x                   ',
+    'x                     o ',
+    '                      x '
+  ],
+  [
+    '      v                        xxxxxxv      ',
+    '    v               o xxxxxxxxx         o   ',
+    '  v         xxxxxxxxxx                 xxx  ',
+    '        o                 =          o      ',
+    '        x             =           !!!x!xxx  ',
+    '@   x         |      xxx     xxx            ',
+    'x            xxx                o           ',
+    '                              xxxx          '
+  ]
+];
+const actorDict = {
+  '@': Player,
+  'v': FireRain,
+  '=': HorizontalFireball,
+  '|': VerticalFireball,
+  'o': Coin
+}
+
+const parser = new LevelParser(actorDict);
+
+const level = parser.parse(maps);
+runLevel(level, DOMDisplay)
+  .then(status => console.log(`Игрок ${status}`));
+
+runGame(maps, parser, DOMDisplay)
+  .then(() => console.log('Вы выиграли приз!'));
