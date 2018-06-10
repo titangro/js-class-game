@@ -132,7 +132,7 @@ class Level {
 		return false;
 	}	
 	actorAt(actor) {
-		if (!(actor instanceof Actor)) {
+		if (!(actor instanceof Actor)) {			
 			throw new Error('Объект не является типом Actor');
 		} else {
 			if (this.actors === undefined) {
@@ -140,11 +140,11 @@ class Level {
 			} else if (this.actors.length === 1) {
 				return;
 			} else {
-				let result;					
+				let result;				
 				for (let item of this.actors) {
-					if (item instanceof Actor) {
-						if (item.pos.x === actor.pos.x) {
-							if (item.pos.y === actor.pos.y) {
+					if (item instanceof Actor) {	
+						if (item.pos.x < (actor.pos.x + actor.size.x) && item.pos.x >= actor.pos.x) {
+							if (item.pos.y < (actor.pos.y + actor.size.y) && item.pos.y >= actor.pos.y) {								
 								result = item;							
 							}					
 						}	else return;		
@@ -165,12 +165,12 @@ class Level {
 			return 'wall';
 		} else if (pos.y + size.y > this.height) {
 			return 'lava';
-		}		
-		for (let i = Math.round(pos.y); i <= size.y+pos.y; i++) {
-			for (let j = Math.round(pos.x); j <= size.x+pos.x; j++){
+		}			
+		for (let i = Math.floor(pos.y + size.y); i <= Math.ceil(size.y + pos.y); i++) {			
+			for (let j = Math.floor(pos.x + size.x); j <= Math.ceil(size.x + pos.x); j++){				
 				return this.grid[i][j];
 			}
-		}
+		}		
 	}
 	removeActor(actor) {				
 		this.actors.splice(this.actors.indexOf(actor), 1);		
@@ -195,7 +195,7 @@ class Level {
 			if (type === 'lava' || type === 'fireball') {
 				this.status = 'lost';
 			} else {
-				if (type === 'coin') {					
+				if (type === 'coin') {			
 					this.removeActor(actor);
 					if (this.noMoreActors('coin')){
 						this.status = 'won';
@@ -227,13 +227,6 @@ class LevelParser {
 		if (plan.length === 0) {			
 			return grid;
 		} else {
-			/*for (let j = 0; j < plan.length; j++) {				
-				let result = plan[j].split('');				
-				for (let i = 0; i < result.length; i++) {					
-					result[i] = this.obstacleFromSymbol(result[i]);
-				}				
-				grid.push(result);
-			}*/
 			let parser = this;
 			plan.map(function(item) {
 				try {
@@ -401,9 +394,9 @@ const maps = [
     '                    !xxx xxxx   xxxxxxxx  ',
     '                  xx            o         ',
     '        o   !!!              xxxx         ',
-    '        xxxx   xx                         ',
-    '  @                                       ',
-    'xxxx   |                                   ',
+    '  @     xxxx   xx                         ',
+    '   x                                      ',
+    'xxxx   |                                  ',
     '               = |                        ',
     '                                          ',
     '         xxxxxx!                          ',
