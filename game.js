@@ -1,6 +1,6 @@
 'use strict';
 class Vector {
-	constructor(x=0, y=0) {
+	constructor(x = 0, y = 0) {
 		this.x = x,
 		this.y = y
 	}
@@ -19,35 +19,13 @@ class Vector {
 }
 
 class Actor {
-	constructor(pos, size, speed) {	
-		if (pos === undefined || size === undefined || speed === undefined) {
-			if (pos === undefined){
-				this.pos = new Vector(0, 0);
-			} else if (pos instanceof Vector) {
-				this.pos = pos;
-			} else {
-				throw new Error('Cвоство pos не является объектами Vector');
-			}
-			if (size === undefined) {
-				this.size = new Vector(1, 1);
-			} else if (size instanceof Vector) {
-				this.size = size;
-			} else {
-				throw new Error('Cвоство size не является объектами Vector');
-			}
-			if(speed === undefined) {
-				this.speed = new Vector(0, 0);
-			} else if (speed instanceof Vector) {
-				this.speed = speed;
-			} else {
-				throw new Error('Cвоство speed не является объектами Vector');
-			}			
-		} else if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
+	constructor(pos = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {	
+		if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
 			this.pos = pos;
 			this.size = size;
-			this.speed = size;
+			this.speed = speed;
 		} else {
-			throw new Error('Cвоства не являются объектами Vector');
+			throw new Error('Cвоство(а) не являются объектами Vector');
 		}			
 	}
 	get left() {
@@ -67,30 +45,12 @@ class Actor {
 	}
 	act() {}
 	isIntersect(actor) {
-		if (actor.type === 'actor' && actor !== undefined) {
-			if (actor === this) {
+		if (actor instanceof Actor && actor !== undefined) {			
+			if (actor !== this && (actor.top === this.top && actor.bottom === this.bottom && actor.left === this.left && actor.right === this.right || actor.left > this.left && this.right > actor.right && actor.top > this.top && actor.bottom < this.bottom || (actor.left > this.right && this.left > actor.right || actor.right > this.left && this.right > actor.left) && (actor.top > this.bottom && this.top > actor.bottom || actor.bottom > this.top && this.bottom > actor.top))) {
+				return true;
+			} else {
 				return false;
 			}
-			if (actor.top === this.top && actor.bottom === this.bottom) {
-				if (actor.left === this.left && actor.right === this.right) {
-					return true;
-				}
-			}	
-			if (actor.left > this.left) {
-				if (this.right > actor.right) {
-					if (actor.top > this.top) {
-						if (actor.bottom < this.bottom) {
-							return true;
-						}
-					}
-				}
-			}	
-			if (actor.left > this.right && this.left > actor.right || actor.right > this.left && this.right > actor.left) {
-				if (actor.top > this.bottom && this.top > actor.bottom || actor.bottom > this.top && this.bottom > actor.top) {
-					return true;
-				}
-			}							
-			return false;
 		} else {
 			throw new Error('Движущийся объект не является типом Actor');
 		}
@@ -105,88 +65,61 @@ class Level {
 		this.finishDelay = 1;		
 	}	
 	get player() {		
-		for (let actor of this.actors) {
-			if (actor.type === "player") {				
-				return actor;
-			}
-		}
+		return this.actors.find((actor) => actor.type === "player");		
 	}
 	get height() {	
 		return this.grid.length;
 	}
 	get width() {
-		let result = 0
-		this.grid.forEach(function(item) {
-			result = Math.max(item.length);
-		});
+		let result = this.grid.reduce(function(result, item) {
+			if (Math.max(item.length) > result) {
+				result = Math.max(item.length);				
+			}
+			return result;
+		}, 0);	
 		return result;		
 	}	
 	isFinished() {
 		if (this.status !== null) {
-			if (this.finishDelay < 0) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		return false;
+			return this.finishDelay < 0
+		} else {
+			return false;
+		}		
 	}	
 	actorAt(actor) {
 		if (!(actor instanceof Actor)) {			
 			throw new Error('Объект не является типом Actor');
-		} else {
+		} else {			
 			if (this.actors === undefined) {
 				return;
-			} else if (this.actors.length === 1) {
-				return;
-			} else {
-				let result;				
-				for (let item of this.actors) {
-					if (item instanceof Actor) {	
-						if (item.pos.x < (actor.pos.x + actor.size.x) && item.pos.x >= actor.pos.x) {
-							if (item.pos.y < (actor.pos.y + actor.size.y) && item.pos.y >= actor.pos.y) {								
-								result = item;							
-							}					
-						}	else return;		
-					}							
-				}
-				return result;
-			}
-		}							
+			} else {				
+				return this.actors.find((item) => item instanceof Actor && actor.isIntersect(item));
+			}			
+		}
 	}
 	obstacleAt(pos, size) {
-		if (!(pos instanceof Vector) || !(pos instanceof Vector)) {
-			throw new Error('Объект(ы) не является типом Vector');
-		} else if (pos.x < 0) {
-			return 'wall';
-		} else if (pos.x + size.x > this.width)	{
-			return 'wall';
-		} else if (pos.y < 0) {
-			return 'wall';
-		} else if (pos.y + size.y > this.height) {
-			return 'lava';
-		}			
-		for (let i = Math.floor(pos.y + size.y); i <= Math.ceil(size.y + pos.y); i++) {			
-			for (let j = Math.floor(pos.x + size.x); j <= Math.ceil(size.x + pos.x); j++){				
-				return this.grid[i][j];
-			}
-		}		
+		if (pos instanceof Vector && pos instanceof Vector) {
+			for (let i = Math.floor(pos.y + size.y); i <= Math.ceil(size.y + pos.y); i++) {			
+				for (let j = Math.floor(pos.x + size.x); j <= Math.ceil(size.x + pos.x); j++){
+					if (pos.x < 0 || pos.x + size.x > this.width || pos.y < 0) {
+						return 'wall';
+					} else if (pos.y + size.y > this.height) {
+						return 'lava';
+					}				
+					return this.grid[i][j];
+				}
+			}				
+		} else throw new Error('Объект(ы) не является типом Vector');
 	}
 	removeActor(actor) {				
-		this.actors.splice(this.actors.indexOf(actor), 1);		
+		this.actors.splice(this.actors.indexOf(actor), 1);	
 	}
 	noMoreActors(type) {
 		if (this.actors === undefined) {
 			return true;
+		} else {
+			return !(this.actors.find((item) => item instanceof Actor && item.type === type));
 		}		
-		for (let item of this.actors) {
-			if (item instanceof Actor){
-				if (item.type === type){
-					return false;
-				}
-			}
-		}
-		return true;	
 	}
 	playerTouched(type, actor) {
 		if (this.status !== null) {
@@ -228,15 +161,11 @@ class LevelParser {
 			return grid;
 		} else {
 			let parser = this;
-			plan.map(function(item) {
-				try {
-					let result = item.split('');				
-					grid.push(result.map(function(item) {
-						return item = parser.obstacleFromSymbol(item);										
-					}));
-				} catch (err) {
-					grid.push();
-				}
+			plan.map(function(item) {				
+				let result = item.toString().split('');
+				grid.push(result.map(function(item) {
+					return item = parser.obstacleFromSymbol(item);										
+				}));
 			});					
 			return grid;
 		}
@@ -384,23 +313,23 @@ class Player extends Actor {
 
 const maps = [
   [
-    '     v                   v                 ',
+    '     v                   v                ',
     '                       v        xxxx      ',
-    '  o   x               v                   ',
-    '  x    x                                  ',
+    '      x               v                   ',
+    '       x                                  ',
     '         x                                ',
     '             xxxx                         ',
-    '                                   o      ',
-    '                    !xxx xxxx   xxxxxxxx  ',
-    '                  xx            o         ',
+    '  o                                       ',
+    '  x                 !xxx xxxx   xxxxxxxx  ',
+    '                  xx                      ',
     '        o   !!!              xxxx         ',
     '  @     xxxx   xx                         ',
     '   x                                      ',
     'xxxx   |                                  ',
     '               = |                        ',
-    '                                          ',
-    '         xxxxxx!                          ',
-    '                        oo                ',
+    '     xxx                                  ',
+    '         xxxxxxxx                         ',
+    '                 xxxxx  oo                ',
     '                      xxxxx               ',
     '                                          ',
     '                                          ',
@@ -408,24 +337,25 @@ const maps = [
     '                                          '
   ],
   [
-    '      v      v         ',
+    '      v        	         ',
     '    v            v    o ',
     '  v        x  x  x x  x ',
     '        o = = =         ',
     '        x    |  | |     ',
     '@   x                   ',
     'x                     o ',
-    '                      x '
+    '  xxxxxxxxxxxxxxxxxxxxxx',
+    '                        '
   ],
   [
-    '      v                        xxxxxxv      ',
-    '    v               o xxxxxxxxx         o   ',
-    '  v         xxxxxxxxxx                 xxx  ',
-    '        o                 =          o      ',
+    '                               xxxxxxv      ',
+    '                    o xxxxxxxxx             ',
+    '            xxxxxxxxxx                 xxx  ',
+    '        o                 =                 ',
     '        x             =           !!!x!xxx  ',
-    '@   x         |      xxx     xxx            ',
-    'x            xxx                o           ',
-    '                              xxxx          '
+    '@   x         |              xxx            ',
+    'x         xxxxxxx               o           ',
+    '                     xxxxxxxxxxxxxxxx       '
   ]
 ];
 const actorDict = {
@@ -439,8 +369,7 @@ const actorDict = {
 const parser = new LevelParser(actorDict);
 
 const level = parser.parse(maps);
-runLevel(level, DOMDisplay)
-  .then(status => console.log(`Игрок ${status}`));
+
 
 runGame(maps, parser, DOMDisplay)
   .then(() => console.log('Вы выиграли приз!'));
