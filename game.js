@@ -99,14 +99,16 @@ class Level {
 	}
 	obstacleAt(pos, size) {
 		if (pos instanceof Vector && pos instanceof Vector) {
-			let posY = Math.floor(pos.y) + Math.floor(size.y);
-			let posX = Math.floor(pos.x) + Math.floor(size.x);		
+			let posY = Math.floor(pos.y + size.y);
+			let posX = Math.floor(pos.x + size.x);
 			if (pos.x < 0 || pos.x + size.x > this.width || pos.y < 0) {
 				return 'wall';
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
-			}	
-			return this.grid[posY][posX];
+			} else if (Math.floor(pos.y + size.y) === Math.floor(pos.y) + Math.floor(size.y)) {
+				return this.grid[(posY)][posX];
+			}			
+			return			
 		} else throw new Error('Объект(ы) не является типом Vector');
 	}
 	removeActor(actor) {				
@@ -322,7 +324,7 @@ const maps = [
     '                  xx                      ',
     '        o   !!!              xxxx         ',
     '  @     xxxx   xx                         ',
-    '   x                                      ',
+    'x  x                                      ',
     'xxxx   |                                  ',
     '               = |                        ',
     '     xxx                                  ',
