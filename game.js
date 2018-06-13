@@ -99,17 +99,19 @@ class Level {
 	}
 	obstacleAt(pos, size) {
 		if (pos instanceof Vector && pos instanceof Vector) {
-			let posY = Math.floor(pos.y + size.y);
-			let posX = Math.floor(pos.x + size.x);
 			if (pos.x < 0 || pos.x + size.x > this.width || pos.y < 0) {
 				return 'wall';
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
-			} else if (Math.floor(pos.y + size.y) === Math.floor(pos.y) + Math.floor(size.y)) {
-				return this.grid[(posY)][posX];
-			}			
-			return			
-		} else throw new Error('Объект(ы) не является типом Vector');
+			}
+			for (let j = Math.floor(pos.y) + Math.floor(size.y); ;j++) {				
+				for (let i = Math.round(pos.x); ;i++) {					
+					return this.grid[j][i];								
+				}
+			}
+		} else { 
+			throw new Error('Объект(ы) не является типом Vector');
+		}
 	}
 	removeActor(actor) {				
 		this.actors.splice(this.actors.indexOf(actor), 1);	
@@ -161,10 +163,10 @@ class LevelParser {
 			return grid;
 		} else {
 			let parser = this;
-			plan.map(function(item) {				
+			plan.forEach(function(item) {				
 				let result = item.toString().split('');
-				grid.push(result.map(function(item) {
-					return item = parser.obstacleFromSymbol(item);										
+				grid.push(result.map(function(item) {					
+					return parser.obstacleFromSymbol(item);										
 				}));
 			});					
 			return grid;
@@ -372,4 +374,4 @@ const level = parser.parse(maps);
 
 
 runGame(maps, parser, DOMDisplay)
-  .then(() => console.log('Вы выиграли приз!'));
+  .then(() => console.log('Поздравляем! Игра успешно пройдена!'));
