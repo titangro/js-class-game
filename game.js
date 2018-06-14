@@ -104,8 +104,8 @@ class Level {
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
 			}
-			for (let j = Math.floor(pos.y) + Math.floor(size.y); ;j++) {				
-				for (let i = Math.round(pos.x); ;i++) {					
+			for (let j = Math.floor(pos.y) + Math.floor(size.y);j <= Math.ceil(pos.y + size.y);j++) {				
+				for (let i = Math.round(pos.x);i < Math.ceil(pos.x + size.x);i++) {					
 					return this.grid[j][i];								
 				}
 			}
