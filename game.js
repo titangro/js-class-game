@@ -374,4 +374,4 @@ const level = parser.parse(maps);
 
 
 runGame(maps, parser, DOMDisplay)
-  .then(() => console.log('Поздравляем! Игра успешно пройдена!'));
+  .then(() => alert('Поздравляем! Игра успешно пройдена!'));
