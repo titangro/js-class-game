@@ -104,9 +104,11 @@ class Level {
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
 			}
-			for (let j = Math.floor(pos.y) + Math.floor(size.y);j <= Math.ceil(pos.y + size.y);j++) {				
-				for (let i = Math.round(pos.x);i < Math.ceil(pos.x + size.x);i++) {					
-					return this.grid[j][i];								
+			for (let posY = Math.round(pos.y);posY < pos.y + size.y;posY++) {
+				for (let posX = Math.round(pos.x);posX < pos.x + size.x;posX++) {
+					if (this.grid[posY][posX] !== undefined) {
+						return this.grid[posY][posX];	
+					}												
 				}
 			}
 		} else { 
@@ -314,6 +316,11 @@ class Player extends Actor {
 }
 
 const maps = [
+  ['         ',
+   '       o ',
+   '         ',
+   ' @       ',
+   ' xx   xx ',],
   [
     '     v                   v                ',
     '                       v        xxxx      ',
@@ -339,12 +346,12 @@ const maps = [
     '                                          '
   ],
   [
-    '      v        	         ',
-    '    v            v    o ',
-    '  v        x  x  x x  x ',
+    '  v v v      	         ',
+    '                 v    o ',
+    '           x  x  x x  x ',
     '        o = = =         ',
-    '        x    |  | |     ',
-    '@   x                   ',
+    '    x   x    |  | |     ',
+    '@                       ',
     'x                     o ',
     '  xxxxxxxxxxxxxxxxxxxxxx',
     '                        '
