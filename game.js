@@ -71,13 +71,9 @@ class Level {
 		return this.grid.length;
 	}
 	get width() {
-		let result = this.grid.reduce(function(result, item) {
-			if (Math.max(item.length) > result) {
-				result = Math.max(item.length);				
-			}
-			return result;
+		return this.grid.reduce(function(result, item) {			
+			return Math.max(item.length, result);
 		}, 0);	
-		return result;		
 	}	
 	isFinished() {
 		if (this.status !== null) {
@@ -377,8 +373,8 @@ const actorDict = {
 
 const parser = new LevelParser(actorDict);
 
-const level = parser.parse(maps);
+loadLevels.grid = maps;
+const level = loadLevels;
 
-
-runGame(maps, parser, DOMDisplay)
+runGame(loadLevels.grid, parser, DOMDisplay)
   .then(() => alert('Поздравляем! Игра успешно пройдена!'));
