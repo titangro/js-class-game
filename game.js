@@ -83,14 +83,12 @@ class Level {
 		}		
 	}	
 	actorAt(actor) {
-		if (!(actor instanceof Actor)) {			
-			throw new Error('Объект не является типом Actor');
-		} else {			
-			if (this.actors === undefined) {
-				return;
-			} else {				
-				return this.actors.find((item) => item instanceof Actor && actor.isIntersect(item));
-			}			
+		if (actor instanceof Actor && actor !== undefined) {
+			if (this.actors) {
+				return this.actors.find((item) => item instanceof Actor && actor.isIntersect(item));					
+			}
+		} else {	
+			throw new Error('Объект не является типом Actor');			
 		}
 	}
 	obstacleAt(pos, size) {
@@ -102,8 +100,9 @@ class Level {
 			}
 			for (let posY = Math.round(pos.y);posY < pos.y + size.y;posY++) {
 				for (let posX = Math.round(pos.x);posX < pos.x + size.x;posX++) {
-					if (this.grid[posY][posX] !== undefined) {
-						return this.grid[posY][posX];	
+					let grid = this.grid[posY][posX];
+					if (grid) {
+						return grid;	
 					}												
 				}
 			}
@@ -161,10 +160,10 @@ class LevelParser {
 			return grid;
 		} else {
 			let parser = this;
-			plan.forEach(function(item) {				
-				let result = item.toString().split('');
-				grid.push(result.map(function(item) {					
-					return parser.obstacleFromSymbol(item);										
+			plan.forEach(function(string) {				
+				let result = string.split('');
+				grid.push(result.map(function(string) {					
+					return parser.obstacleFromSymbol(string);										
 				}));
 			});					
 			return grid;
@@ -175,24 +174,20 @@ class LevelParser {
 		if (plan.length === 0 || this.data === undefined) {			
 			return [];
 		} else {
-			try {
-				let item, actor, result;							
-				for (let i = 0; i < plan.length; i++) {
-					result = plan[i].split('');				
-					for (let j = 0; j < plan[i].length; j++) {					
-						item = this.actorFromSymbol(result[j]);
-						if (item === undefined || typeof item !== 'function' || !(new item() instanceof Actor)) {						
-							grid.push();
-							continue;
-						} else {
-							actor = new item(new Vector(j, i));																
-						}	
-						grid.push(actor);					
-					}								
-				}
-			} catch(err) {
-				grid.push();
-			}
+			let item, actor, result;							
+			for (let i = 0; i < plan.length; i++) {
+				result = plan[i].split('');				
+				for (let j = 0; j < plan[i].length; j++) {					
+					item = this.actorFromSymbol(result[j]);
+					if (item === undefined || typeof item !== 'function' || !(new item() instanceof Actor)) {						
+						grid.push();
+						continue;
+					} else {
+						actor = new item(new Vector(j, i));																
+					}	
+					grid.push(actor);					
+				}								
+			}			
 			return grid;
 		}
 	}
@@ -371,10 +366,15 @@ const actorDict = {
   'o': Coin
 }
 
-const parser = new LevelParser(actorDict);
-
 loadLevels.grid = maps;
-const level = loadLevels;
+loadLevels.actors = actorDict
 
+const parser = new LevelParser(loadLevels.actors);
+const level = loadLevels;
+console.log(loadLevels)
+console.log(level)
+
+
+//console.log(loadLevels());
 runGame(loadLevels.grid, parser, DOMDisplay)
   .then(() => alert('Поздравляем! Игра успешно пройдена!'));
