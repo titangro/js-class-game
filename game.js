@@ -370,5 +370,4 @@ const parser = new LevelParser(actorDict);
 
 loadLevels()
   .then(runGame(maps, parser, DOMDisplay)
-  	.then(() => alert('Поздравляем! Игра успешно пройдена!')))
-  ;
+  	.then(() => alert('Поздравляем! Игра успешно пройдена!')));
