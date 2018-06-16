@@ -366,15 +366,9 @@ const actorDict = {
   'o': Coin
 }
 
-loadLevels.grid = maps;
-loadLevels.actors = actorDict
+const parser = new LevelParser(actorDict);
 
-const parser = new LevelParser(loadLevels.actors);
-const level = loadLevels;
-console.log(loadLevels)
-console.log(level)
-
-
-//console.log(loadLevels());
-runGame(loadLevels.grid, parser, DOMDisplay)
-  .then(() => alert('Поздравляем! Игра успешно пройдена!'));
+loadLevels()
+  .then(runGame(maps, parser, DOMDisplay)
+  	.then(() => alert('Поздравляем! Игра успешно пройдена!')))
+  ;
