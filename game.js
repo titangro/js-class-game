@@ -306,58 +306,6 @@ class Player extends Actor {
 	}
 }
 
-const maps = [
-  ['         ',
-   '       o ',
-   '         ',
-   ' @       ',
-   ' xx   xx ',],
-  [
-    '     v                   v                ',
-    '                       v        xxxx      ',
-    '      x               v                   ',
-    '       x                                  ',
-    '         x                                ',
-    '             xxxx                         ',
-    '  o                                       ',
-    '  x                 !xxx xxxx   xxxxxxxx  ',
-    '                  xx                      ',
-    '        o   !!!              xxxx         ',
-    '  @     xxxx   xx                         ',
-    'x  x                                      ',
-    'xxxx   |                                  ',
-    '               = |                        ',
-    '     xxx                                  ',
-    '         xxxxxxxx                         ',
-    '                 xxxxx  oo                ',
-    '                      xxxxx               ',
-    '                                          ',
-    '                                          ',
-    '                                          ',
-    '                                          '
-  ],
-  [
-    '  v v v      	         ',
-    '                 v    o ',
-    '           x  x  x x  x ',
-    '        o = = =         ',
-    '    x   x    |  | |     ',
-    '@                       ',
-    'x                     o ',
-    '  xxxxxxxxxxxxxxxxxxxxxx',
-    '                        '
-  ],
-  [
-    '                               xxxxxxv      ',
-    '                    o xxxxxxxxx             ',
-    '            xxxxxxxxxx                 xxx  ',
-    '        o                 =                 ',
-    '        x             =           !!!x!xxx  ',
-    '@   x         |              xxx            ',
-    'x         xxxxxxx               o           ',
-    '                     xxxxxxxxxxxxxxxx       '
-  ]
-];
 const actorDict = {
   '@': Player,
   'v': FireRain,
@@ -369,5 +317,5 @@ const actorDict = {
 const parser = new LevelParser(actorDict);
 
 loadLevels()
-  .then(runGame(maps, parser, DOMDisplay)
-  	.then(() => alert('Поздравляем! Игра успешно пройдена!')));
+  .then(map => runGame(JSON.parse(map), parser, DOMDisplay)
+    .then(() => alert('Поздравляем! Игра успешно пройдена!')))
