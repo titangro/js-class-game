@@ -129,7 +129,7 @@ class Level {
 			} else {
 				if (type === 'coin') {			
 					this.removeActor(actor);
-					if (this.noMoreActors('coin')){
+					if (this.noMoreActors('coin')) {
 						this.status = 'won';
 					}
 				}
@@ -143,7 +143,9 @@ class LevelParser {
 		this.data = data;
 	}
 	actorFromSymbol(symbol) {
-		if (symbol !== undefined) {
+		if (!symbol || (typeof this.data[symbol]) !== 'function') {
+			return;
+		} else {
 			return this.data[symbol];
 		}
 	}
@@ -180,7 +182,7 @@ class LevelParser {
 				result = posX.split('');
 				result.forEach((posY, cell) => {
 					item = parser.actorFromSymbol(posY);
-					if (item !== undefined && typeof item === 'function' && new item() instanceof Actor) {						
+					if (item !== undefined && new item() instanceof Actor) {						
 						actor = new item(new Vector(cell, column));
 					} else {
 						return grid.push();																					
