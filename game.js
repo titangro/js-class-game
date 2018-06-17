@@ -71,7 +71,7 @@ class Level {
 		return this.grid.length;
 	}
 	get width() {
-		return this.grid.reduce(function(result, item) {			
+		return this.grid.reduce((result, item) => {			
 			return Math.max(item.length, result);
 		}, 0);	
 	}	
@@ -98,11 +98,11 @@ class Level {
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
 			}
-			for (let posY = Math.floor(pos.y);posY < pos.y + size.y;posY++) {
-				for (let posX = Math.floor(pos.x);posX < pos.x + size.x;posX++) {
-					let grid = this.grid[posY][posX];
-					if (grid) {
-						return grid;	
+			for (let posY = Math.floor(pos.y); posY < pos.y + size.y; posY++) {
+				for (let posX = Math.floor(pos.x); posX < pos.x + size.x; posX++) {
+					let obstacle = this.grid[posY][posX];
+					if (obstacle) {
+						return obstacle;	
 					}												
 				}
 			}
@@ -117,7 +117,7 @@ class Level {
 		if (this.actors === undefined) {
 			return true;
 		} else {
-			return !(this.actors.find((item) => item instanceof Actor && item.type === type));
+			return !(this.actors.find((actor) => actor.type === type));
 		}		
 	}
 	playerTouched(type, actor) {
@@ -160,10 +160,10 @@ class LevelParser {
 			return grid;
 		} else {
 			let parser = this;
-			plan.forEach(function(string) {				
+			plan.forEach((string) => {				
 				let result = string.split('');
-				grid.push(result.map(function(string) {					
-					return parser.obstacleFromSymbol(string);										
+				grid.push(result.map((cell) => {	
+					return parser.obstacleFromSymbol(cell);										
 				}));
 			});					
 			return grid;
@@ -176,12 +176,12 @@ class LevelParser {
 		} else {
 			let actor, result, item;
 			let parser = this;
-			plan.forEach(function(posX, i) {
+			plan.forEach((posX, column) => {
 				result = posX.split('');
-				result.forEach(function(posY, j) {
-					item = parser.actorFromSymbol(posY);	
+				result.forEach((posY, cell) => {
+					item = parser.actorFromSymbol(posY);
 					if (item !== undefined && typeof item === 'function' && new item() instanceof Actor) {						
-						actor = new item(new Vector(j, i));
+						actor = new item(new Vector(cell, column));
 					} else {
 						return grid.push();																					
 					}	
