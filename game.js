@@ -98,8 +98,8 @@ class Level {
 			} else if (pos.y + size.y > this.height) {
 				return 'lava';
 			}
-			for (let posY = Math.round(pos.y);posY < pos.y + size.y;posY++) {
-				for (let posX = Math.round(pos.x);posX < pos.x + size.x;posX++) {
+			for (let posY = Math.floor(pos.y);posY < pos.y + size.y;posY++) {
+				for (let posX = Math.floor(pos.x);posX < pos.x + size.x;posX++) {
 					let grid = this.grid[posY][posX];
 					if (grid) {
 						return grid;	
@@ -174,20 +174,20 @@ class LevelParser {
 		if (plan.length === 0 || this.data === undefined) {			
 			return [];
 		} else {
-			let item, actor, result;							
-			for (let i = 0; i < plan.length; i++) {
-				result = plan[i].split('');				
-				for (let j = 0; j < plan[i].length; j++) {					
-					item = this.actorFromSymbol(result[j]);
-					if (item === undefined || typeof item !== 'function' || !(new item() instanceof Actor)) {						
-						grid.push();
-						continue;
+			let actor, result, item;
+			let parser = this;
+			plan.forEach(function(posX, i) {
+				result = posX.split('');
+				result.forEach(function(posY, j) {
+					item = parser.actorFromSymbol(posY);	
+					if (item !== undefined && typeof item === 'function' && new item() instanceof Actor) {						
+						actor = new item(new Vector(j, i));
 					} else {
-						actor = new item(new Vector(j, i));																
+						return grid.push();																					
 					}	
-					grid.push(actor);					
-				}								
-			}			
+					grid.push(actor);
+				});								
+			});		
 			return grid;
 		}
 	}
@@ -208,7 +208,7 @@ class Fireball extends Actor {
 		return 'fireball';
 	}		
 	getNextPosition(time = 1) {		
- 		return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
+ 		return new Vector(this.pos.x, this.pos.y).plus(new Vector(this.speed.x, this.speed.y).times(time));
 	}
 	handleObstacle() {
 		this.speed.x = -this.speed.x;
@@ -316,6 +316,6 @@ const actorDict = {
 
 const parser = new LevelParser(actorDict);
 
-loadLevels()
-  .then(map => runGame(JSON.parse(map), parser, DOMDisplay)
-    .then(() => alert('Поздравляем! Игра успешно пройдена!')))
+loadLevels()    
+  .then(map => runGame(JSON.parse(map), parser, DOMDisplay)  	
+    .then(() => alert('Поздравляем! Игра успешно пройдена!')));
