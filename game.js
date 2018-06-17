@@ -141,10 +141,10 @@ class LevelParser {
 		this.data = data;
 	}
 	actorFromSymbol(symbol) {
-		if (!symbol || (typeof this.data[symbol]) !== 'function') {
-			return;
-		} else {
+		if (symbol && typeof this.data[symbol] === 'function') {
 			return this.data[symbol];
+		} else {
+			return;
 		}
 	}
 	obstacleFromSymbol(symbol) {
