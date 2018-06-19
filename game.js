@@ -46,11 +46,7 @@ class Actor {
 	act() {}
 	isIntersect(actor) {
 		if (actor instanceof Actor && actor !== undefined) {
-			if (actor !== this && (actor.top === this.top && actor.bottom === this.bottom && actor.left === this.left && actor.right === this.right || actor.left > this.left && this.right > actor.right && actor.top > this.top && actor.bottom < this.bottom || (actor.left > this.right && this.left > actor.right || actor.right > this.left && this.right > actor.left) && (actor.top > this.bottom && this.top > actor.bottom || actor.bottom > this.top && this.bottom > actor.top))) {
-				return true;
-			} else {
-				return false;
-			}
+			return actor !== this && (actor.top === this.top && actor.bottom === this.bottom && actor.left === this.left && actor.right === this.right || actor.left > this.left && this.right > actor.right && actor.top > this.top && actor.bottom < this.bottom || (actor.left > this.right && this.left > actor.right || actor.right > this.left && this.right > actor.left) && (actor.top > this.bottom && this.top > actor.bottom || actor.bottom > this.top && this.bottom > actor.top));
 		} else {
 			throw new Error('Движущийся объект не является типом Actor');
 		}
